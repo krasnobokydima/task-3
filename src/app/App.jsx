@@ -47,20 +47,24 @@ function App() {
 		}
 
 		setLoading(true);
-		const data = await getInfoFromServer(textSearch);
 
-		setDataFromServer(() => ({ ...data }));
+		try {
+			const data = await getInfoFromServer(textSearch);
+			setDataFromServer({ ...data });
+			setPaginationInfo((prev) => ({
+				...prev,
+				pages: Math.ceil(data.data.length / prev.amountRowsOnPage),
+			}));
+		} catch (e) {
+			setError(true);
+		}
+
 		setLoading(false);
-
-		setPaginationInfo((prev) => ({
-			...prev,
-			pages: Math.ceil(data.data.length / prev.amountRowsOnPage),
-		}));
 	};
 
 	useEffect(() => {
 		let { data } = dataFromServer;
-		let preparedData = data.map(item => ({...item, value: false}))
+		let preparedData = data.map((item) => ({ ...item, value: false }));
 
 		const { currentPage, amountRowsOnPage } = paginationInfo;
 		const start = (currentPage - 1) * amountRowsOnPage;
