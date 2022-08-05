@@ -1,28 +1,20 @@
 import React, { useEffect, useState } from "react";
+import { useLocalStorage } from "./hooks/UseLocalStorage";
 import { getInfoFromServer } from "./api/api";
 import Layout from "./components/layout/Layout";
 import Loader from "./components/loader/Loader";
 import SearchInput from "./components/searchInput/SearchInput";
+import { config } from "./config";
 import { Body, Container } from "./style";
 
-const paginationConfig = {
-	currentPage: 1,
-	amountRowsOnPage: 10,
-	pages: 0,
-};
-
-const dataConfig = {
-	data: [],
-	status: null,
-};
-
 function App() {
-	const [dataFromServer, setDataFromServer] = useState(dataConfig);
-	const [paginationInfo, setPaginationInfo] = useState(paginationConfig);
+	const [dataFromServer, setDataFromServer] = useState(config.dataConfig);
+	const [paginationInfo, setPaginationInfo] = useState(config.paginationConfig);
 	const [textSearch, setTextSearch] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(false);
 	const [preparingData, setPreparingData] = useState([]);
+	const [saveItem] = useLocalStorage();
 
 	const handleSearch = ({ target }) => {
 		if (error) {
@@ -35,7 +27,7 @@ function App() {
 	const resetSearch = () => {
 		setTextSearch("");
 		setPreparingData([]);
-		setDataFromServer(dataConfig);
+		setDataFromServer(config.dataConfig);
 	};
 
 	const searchInfo = async (e) => {
@@ -51,7 +43,7 @@ function App() {
 		const data = await getInfoFromServer(textSearch);
 
 		if (!data) {
-			setError('Network error');
+			setError("Network error");
 			setLoading(false);
 
 			return;
@@ -68,7 +60,10 @@ function App() {
 
 	useEffect(() => {
 		let { data } = dataFromServer;
-		let preparedData = data.map((item) => ({ ...item, value: false }));
+
+		let preparedData = data.map((el) => {
+			return { ...el, value: saveItem.find((item) => item.name === el.name) };
+		});
 
 		const { currentPage, amountRowsOnPage } = paginationInfo;
 		const start = (currentPage - 1) * amountRowsOnPage;
@@ -77,7 +72,7 @@ function App() {
 		const slicing = preparedData.slice(start, end);
 
 		setPreparingData(slicing);
-	}, [dataFromServer, paginationInfo]);
+	}, [dataFromServer, paginationInfo, saveItem]);
 
 	return (
 		<Body>
