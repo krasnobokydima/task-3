@@ -3,11 +3,13 @@ import Pagination from "../pagination/Pagination";
 import Table from "../table/Table";
 import { ErrorMessage, Message, Container } from "./style";
 
-const Layout = ({ data, paginationInfo, setPaginationInfo, error, status, handleCheck }) => {
+const Layout = ({ data, paginationInfo, setPaginationInfo, error, status }) => {
 	if (error) {
 		return (
 			<ErrorMessage>
-				Enter the name of the country whose universities you want to find
+				{typeof error === "string"
+					? error
+					: "Enter the name of the country whose universities you want to find"}
 			</ErrorMessage>
 		);
 	}
@@ -30,9 +32,9 @@ const Layout = ({ data, paginationInfo, setPaginationInfo, error, status, handle
 
 	return (
 		<>
-      <Container>
-			  <Table data={data} page={paginationInfo.currentPage}/>
-      </Container>
+			<Container>
+				<Table data={data} page={paginationInfo.currentPage} />
+			</Container>
 			<Pagination
 				paginationInfo={paginationInfo}
 				setPaginationInfo={setPaginationInfo}

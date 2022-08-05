@@ -48,16 +48,20 @@ function App() {
 
 		setLoading(true);
 
-		try {
-			const data = await getInfoFromServer(textSearch);
-			setDataFromServer({ ...data });
-			setPaginationInfo((prev) => ({
-				...prev,
-				pages: Math.ceil(data.data.length / prev.amountRowsOnPage),
-			}));
-		} catch (e) {
-			setError(true);
+		const data = await getInfoFromServer(textSearch);
+
+		if (!data) {
+			setError('Network error');
+			setLoading(false);
+
+			return;
 		}
+
+		setDataFromServer({ ...data });
+		setPaginationInfo((prev) => ({
+			...prev,
+			pages: Math.ceil(data.data.length / prev.amountRowsOnPage),
+		}));
 
 		setLoading(false);
 	};
